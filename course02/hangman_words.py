@@ -1,0 +1,1 @@
+guess_words=['onomatopee','alfabet','abecedar']
