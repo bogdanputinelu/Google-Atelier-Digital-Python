@@ -1,33 +1,29 @@
-from bs4 import BeautifulSoup
-import requests
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.service import Service as ChromeService
 import pandas as pd
-from pandas import ExcelWriter
 
-request_page = requests.get('https://www.bnr.ro/Cursul-de-schimb--7372.aspx')
-link = BeautifulSoup(request_page.text, 'html.parser')
-dataset, header_list = [], []
-main = link.find_all('div', attrs={'id': 'contentDiv'})
-for obj in main:
-    for table_index in obj.find_all('table'):
-        for table_trs in table_index.find_all('tr'):
-            # print(table_trs)
-            td_list = []
-            if table_trs.find_all('th'):
-                header_list = [x.get_text() for x in table_trs.find_all('th')]
-            for index, td in enumerate(table_trs.find_all('td')):
-                # print(index,td)
-                if index == 0:
-                    td_list.append(td.get_text())
-                elif td.get_text() != '':
-                    td_list.append(float(td.get_text().replace(',', '.')))
-                print(td_list)
-            dataset.append(td_list)
+browser = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 
-del dataset[0]
-print(dataset)
+browser.get('https://www.bnr.ro/files/xml/nbrfxrates2021.htm')
+table = browser.find_element(by=By.XPATH, value='//*[@id="Data_table"]')
+table_text = table.text
+lista = table_text.split('\n')
+# print(lista)
+header_len = browser.find_element(by=By.XPATH, value='//*[@id="Data_table"]/table/thead/tr')
+header = header_len.text.split('\n')
+# print(header)
+dictionar = {i: [] for i in header}
+for j in range(0, len(header)):
+    for i in range(len(header)+int(j), len(lista), len(header)):
+        # print(header[int(j)], lista[i])
+        if '-' in lista[i]:
+            dictionar[header[int(j)]].append(lista[i])
+        else:
+            dictionar[header[int(j)]].append(float(lista[i]))
+# print(dictionar)
 
-df = pd.DataFrame(dataset, columns=header_list, index=range(1, 11))
+df = pd.DataFrame(dictionar)
 print(df)
-df.to_excel('CursBNR.xlsx', header=header_list, sheet_name='CursBNR')
-# with ExcelWriter('CursBNR.xls') as writer:
-#     df.to_excel(writer, index=False)
+df.to_excel('BNR_ALL_DATA.xls')
