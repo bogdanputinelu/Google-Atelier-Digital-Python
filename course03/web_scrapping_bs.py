@@ -26,7 +26,7 @@ for obj in main:
 del dataset[0]
 print(dataset)
 
-df = pd.DataFrame(dataset, columns=header_list, index=range(1,11))
+df = pd.DataFrame(dataset, columns=header_list, index=range(1, 11))
 print(df)
 df.to_excel('CursBNR.xlsx', header=header_list, sheet_name='CursBNR')
 # with ExcelWriter('CursBNR.xls') as writer:
