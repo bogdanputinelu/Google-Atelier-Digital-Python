@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+    <a class="btn btn-primary" href="{% url 'jobs:adaugare' %}">Adaugare job</a>
+    <table class="table">
+    <thead>
+    <tr>
+        <th>Index</th>
+        <th>Job Type</th>
+        <th>Title</th>
+        <th>Url</th>
+        <th>Description</th>
+        <th>Active</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in job_list %}
+        <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ item.job_type }}</td>
+        <td>{{ item.title }}</td>
+        <td>{{ item.url }}</td>
+        <td>{{ item.description }}</td>
+        <td>{% if item.active %}
+            Activ
+            {% else %}
+            Inactiv
+            {% endif %}</td>
+        <td>
+            <a class="btn btn-success" href="{% url 'jobs:modificare' item.id %}">Editare</a>
+            {% if item.active %}
+            <a class="btn btn-warning" href="{% url 'jobs:stergere' item.id %}">Stergere</a>
+            {% else %}
+            <a class="btn btn-warning" href="{% url 'jobs:activare' item.id %}">Activare</a>
+            {% endif %}
+        </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+{% endblock %}
